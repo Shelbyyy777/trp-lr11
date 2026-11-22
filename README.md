@@ -1,6 +1,6 @@
 # Лабораторная работа №11 по ТРП
 
-Вариант Б. Сетевое взаимодействие приложения ASP.NET Core (.NET 10) и PostgreSQL 16.
+Вариант Б. Сетевое взаимодействие приложения ASP.NET Core и PostgreSQL 16.
 Основой проекта служит MVC-приложение «Калькулятор дней до события» из ЛР9.
 
 ## Проверка в GitHub Actions
@@ -35,4 +35,4 @@ docker compose up --build -d
 
 ## Публикация из исходников
 
-Для сборки с установленным .NET 10 SDK выполните `dotnet publish -c Release -o ./publish`.
+Для сборки выполните `dotnet publish -c Release -o ./publish`.

@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY EventDaysMvc.csproj NuGet.Config ./
@@ -7,7 +7,7 @@ RUN dotnet restore EventDaysMvc.csproj
 COPY . .
 RUN dotnet publish EventDaysMvc.csproj -c Release -o /out --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /out .
 
