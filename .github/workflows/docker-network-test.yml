@@ -1,0 +1,68 @@
+name: Docker Network Test
+
+on:
+  push:
+    branches: [main, master, lab11]
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    name: "Вариант Б — Docker"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Проверка кода из репозитория
+        uses: actions/checkout@v4
+
+      - name: Создание пользовательской сети
+        run: docker network create --driver bridge app-network
+
+      - name: Запуск PostgreSQL
+        run: |
+          docker run -d --name db --network app-network \
+            -e POSTGRES_DB=appdb -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres \
+            --mount "type=bind,source=$PWD/database/init.sql,target=/docker-entrypoint-initdb.d/01-items.sql,readonly" \
+            postgres:16
+
+      - name: Сборка образа приложения
+        run: docker build -t backend-app .
+
+      - name: Запуск контейнера приложения
+        run: |
+          docker run -d --name backend-container --network app-network \
+            -p 127.0.0.1:8080:8080 \
+            -e 'DB_CONNECTION=Host=db;Port=5432;Database=appdb;Username=postgres;Password=postgres' \
+            backend-app
+
+      - name: Проверка сетевого взаимодействия и GET /items
+        run: |
+          docker network inspect app-network
+          bash scripts/check-items.sh
+
+      - name: Журналы при ошибке
+        if: failure()
+        run: |
+          docker logs db || true
+          docker logs backend-container || true
+
+  compose:
+    name: "Дополнительное задание — Docker Compose"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Проверка кода из репозитория
+        uses: actions/checkout@v4
+
+      - name: Сборка и запуск через Docker Compose
+        run: docker compose up --build -d
+
+      - name: Проверка GET /items после запуска Compose
+        run: |
+          docker compose ps
+          bash scripts/check-items.sh
+
+      - name: Журналы при ошибке
+        if: failure()
+        run: docker compose logs --no-color
