@@ -6,7 +6,7 @@
 ## Проверка в GitHub Actions
 
 Workflow `.github/workflows/docker-network-test.yml` запускается при отправке
-изменений в `lab11`, `main` или `master`. В [GitHub Actions](https://github.com/Shelbyyy777/trp-lr9/actions?query=branch%3Alab11)
+изменений в `lab11`, `main` или `master`. В [GitHub Actions](https://github.com/Shelbyyy777/trp-lr11/actions)
 откройте **Docker Network Test** и раскройте шаг проверки `GET /items`.
 
 - Вариант Б создаёт сеть `app-network`, собирает образ и запускает два контейнера командами Docker.
