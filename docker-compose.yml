@@ -1,6 +1,36 @@
-services: 
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-items.sql:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "appdb"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+    networks:
+      - app-network
+
   backend:
     build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_CONNECTION: "Host=db;Port=5432;Database=appdb;Username=postgres;Password=postgres"
     ports:
-      - "8080:8080"
-    container_name: Build1
+      - "127.0.0.1:8080:8080"
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+
+networks:
+  app-network:
+    driver: bridge

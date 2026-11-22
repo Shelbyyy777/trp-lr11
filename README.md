@@ -1,32 +1,38 @@
-# Лабораторная работа 9 по ТРП
+# Лабораторная работа №11 по ТРП
 
-Контейнеризация приложения ASP.NET Core MVC «Калькулятор дней до события», вариант 15. В этом каталоге находятся исходники приложения на .NET 10, `Dockerfile`, конфигурация Compose и workflow для GitHub Actions.
+Вариант Б. Сетевое взаимодействие приложения ASP.NET Core (.NET 10) и PostgreSQL 16.
+Основой проекта служит MVC-приложение «Калькулятор дней до события» из ЛР9.
 
-## Вариант Б — GitHub Actions
+## Проверка в GitHub Actions
 
-1. Создайте пустой публичный репозиторий GitHub. Поместите **содержимое** этого каталога в корень репозитория, сохранив `.github/workflows/docker-build.yml`.
-2. Отправьте изменения в `main` или `master`. Для ручного запуска откройте **Actions → Docker Build Test → Run workflow**.
-3. Откройте запуск, выберите задание **build** и раскройте шаг **Сборка Docker-образа в облаке GitHub**. Сделайте скриншот после успешного завершения. Строка `Образ собран!` и тег `test-app:latest` видны в журнале этого шага.
+Workflow `.github/workflows/docker-network-test.yml` запускается при отправке
+изменений в `lab11`, `main` или `master`. В [GitHub Actions](https://github.com/Shelbyyy777/trp-lr9/actions?query=branch%3Alab11)
+откройте **Docker Network Test** и раскройте шаг проверки `GET /items`.
 
-Workflow собирает образ, временно запускает контейнер, проверяет страницу и ответ API по HTTP. После проверки контейнер останавливается. В браузере на компьютере сайт открывается при отдельном локальном запуске приложения.
+- Вариант Б создаёт сеть `app-network`, собирает образ и запускает два контейнера командами Docker.
+- Дополнительное задание запускает те же сервисы через Docker Compose.
 
-## Запуск исходников без Docker
+Оба задания проверяют, что `GET /items` возвращает записи `Notebook` и `Pen`
+из таблицы `Items`. Таблица и данные создаются из `database/init.sql` при
+первом запуске PostgreSQL. Приложение получает строку подключения из
+`DB_CONNECTION` и обращается к базе по имени `db`.
 
-Из этого каталога с установленным .NET 10 SDK выполните:
+## Запуск через Docker Compose
 
-```powershell
-dotnet publish -c Release -o ./publish
-dotnet run --no-launch-profile --urls http://localhost:5081
-```
-
-Откройте <http://localhost:5081>. В браузере выберите «Через неделю» и проверьте, что калькулятор показывает 7 дней. Адрес <http://localhost:5081/api/days-until?date=2030-01-01> возвращает JSON. Остановите приложение клавишами `Ctrl+C`.
-
-## Дополнительное задание — Docker Compose
-
-При запущенном Docker выполните:
+В каталоге с `docker-compose.yml` выполните:
 
 ```sh
-docker compose up --build
+docker compose up --build -d
 ```
 
-Откройте <http://localhost:8080>. Для остановки нажмите `Ctrl+C`, затем выполните `docker compose down`.
+Откройте <http://localhost:8080/items>. Ожидаемый ответ:
+
+```json
+[{"id":1,"name":"Notebook"},{"id":2,"name":"Pen"}]
+```
+
+Для остановки выполните `docker compose down`.
+
+## Публикация из исходников
+
+Для сборки с установленным .NET 10 SDK выполните `dotnet publish -c Release -o ./publish`.
